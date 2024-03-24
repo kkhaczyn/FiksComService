@@ -1,0 +1,6 @@
+@FiksComService_HostAddress = http://localhost:5046
+
+GET {{FiksComService_HostAddress}}/api/account/
+Accept: application/json
+
+###
