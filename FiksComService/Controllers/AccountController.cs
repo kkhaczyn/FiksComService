@@ -1,6 +1,5 @@
 using FiksComService.Models.Database;
 using FiksComService.Models.Requests;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +14,7 @@ namespace FiksComService.Controllers
     ILogger<AccountController> logger)
     : ControllerBase
     {
-        [HttpPost("/Account/SignUp")]
+        [HttpPost("/api/Account/SignUp")]
         public async Task<IActionResult> SignUp(SignUpRequest signUpRequest)
         {
             try
@@ -76,7 +75,7 @@ namespace FiksComService.Controllers
             return BadRequest("Coœ posz³o nie tak... Spróbuj ponownie póŸniej.");
         }
 
-        [HttpPost("/Account/SignIn")]
+        [HttpPost("/api/Account/SignIn")]
         public async Task<IActionResult> SignIn(SignInRequest signInRequest)
         {
             var result = await signInManager.PasswordSignInAsync(signInRequest.UserName, signInRequest.Password, false, false);
@@ -105,7 +104,7 @@ namespace FiksComService.Controllers
             return BadRequest("B³êdne dane logowania. Spróbuj ponownie.");
         }
 
-        [HttpPost("/Account/SignOut")]
+        [HttpPost("/api/Account/SignOut")]
         public async Task<IActionResult> SignOut()
         {
             await signInManager.SignOutAsync();

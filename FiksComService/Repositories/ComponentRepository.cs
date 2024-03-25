@@ -18,7 +18,7 @@ namespace FiksComService.Repositories
         {
             using (var factory = dbContextFactory.CreateDbContext())
             {
-                return factory.Components.Where(x => x.ComponentType.ToUpper() == componentType.ToUpper());
+                return factory.Components.Where(x => x.ComponentType.ToUpper() == componentType.ToUpper()).ToList();
             }
         }
 

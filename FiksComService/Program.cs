@@ -1,11 +1,15 @@
 using FiksComService.Application;
 using FiksComService.Models.Database;
 using FiksComService.Repositories;
+using log4net.Config;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+XmlConfigurator.ConfigureAndWatch(new FileInfo("log4net.config"));
+builder.Logging.ClearProviders();
 builder.Logging.AddLog4Net("log4net.config");
 
 builder.Services.AddIdentity<User, Role>(options =>
@@ -29,8 +33,8 @@ var app = builder.Build();
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope())

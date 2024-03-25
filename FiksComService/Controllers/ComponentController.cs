@@ -15,7 +15,7 @@ namespace FiksComService.Controllers
         : ControllerBase
     {
         [Authorize(Roles = "Administrator")]
-        [HttpPost("/Component/UpsertComponent")]
+        [HttpPost("[action]")]
         public IActionResult UpsertComponent(AddingNewComponentRequest addingNewComponentRequest)
         {
             if (addingNewComponentRequest.Component != null)
@@ -43,21 +43,32 @@ namespace FiksComService.Controllers
             return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
         }
 
-        [Authorize(Roles = "Administrator")]
-        [Authorize(Roles = "Client")]
-        [HttpGet("/Component/GetComponentsByType")]
+        //http://localhost:5046/api/component/getcomponentbytype/Procesor
+        [Authorize(Roles = "Administrator, Client")]
+        [HttpGet("[action]/{componentType}")]
         public IActionResult GetComponentsByType(string componentType)
         {
             if (!string.IsNullOrWhiteSpace(componentType))
             {
-                return Ok(componentRepository.GetComponentsByType(componentType));
+                IEnumerable<Component> components = componentRepository.GetComponentsByType(componentType);
+
+                if (components?.Any() ?? false)
+                {
+                    return Ok(componentRepository.GetComponentsByType(componentType));
+                }
+                else
+                {
+                    return BadRequest("Brak elementów.");
+                }
+
             }
 
             return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
         }
 
+        //http://localhost:5046/api/component/getcomponentbyid/1
         [Authorize(Roles = "Administrator")]
-        [HttpGet("/Component/GetComponentById")]
+        [HttpGet("[action]/{componentId:int}")]
         public IActionResult GetComponentById(int componentId)
         {
             Component? component = componentRepository.GetComponentById(componentId);
