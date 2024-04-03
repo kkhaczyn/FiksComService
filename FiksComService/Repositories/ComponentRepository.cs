@@ -24,9 +24,12 @@ namespace FiksComService.Repositories
 
         public int UpsertComponent(Component component)
         {
+            if (component == null)
+                return 0;
+
             using (var factory = dbContextFactory.CreateDbContext())
             {
-                if (component?.ComponentId != null)
+                if (component.ComponentId == 0)
                 {
                     factory.Components.Add(component);
                 }
