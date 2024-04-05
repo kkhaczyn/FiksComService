@@ -3,7 +3,6 @@ using FiksComService.Models.Database;
 using FiksComService.Repositories;
 using log4net.Config;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +24,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContextFactory<ApplicationContext>(options 
     => options.UseNpgsql(builder.Configuration.GetConnectionString("CSFiksCom")));
 builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
+builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
+builder.Services.AddSingleton<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 var app = builder.Build();

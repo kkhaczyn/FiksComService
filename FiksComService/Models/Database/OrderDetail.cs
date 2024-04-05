@@ -7,5 +7,6 @@
         public required Component Component {  get; set; }
         public int Quantity {  get; set; }
         public decimal PricePerUnit {  get; set; }
+        // TODO: add reference to Order
     }
 }
