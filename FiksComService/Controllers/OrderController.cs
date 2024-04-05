@@ -13,9 +13,7 @@ namespace FiksComService.Controllers
     [Authorize(Roles = "Client")]
     public class OrderController(
         IOrderRepository orderRepository,
-        IOrderDetailRepository orderDetailRepository,
-        UserManager<User> userManager,
-        ILogger<OrderController> logger
+        UserManager<User> userManager
         ) : ControllerBase
     {
         [HttpPost("[action]")]
@@ -38,28 +36,31 @@ namespace FiksComService.Controllers
                 Status = "placed"
             };
 
-            logger.LogInformation(JsonConvert.SerializeObject(order));
+            user.Orders.Add(order);
 
-            var result = orderRepository.UpsertOrder(order, user);
-            if (result > 0)
+            var userUpdateResult = await userManager.UpdateAsync(user);
+
+            if (userUpdateResult.Succeeded)
             {
-                //var orderDetails = cartItems.Select(item => new OrderDetail()
-                //{
-                //    Order = newOrder,
-                //    Component = item.Component,
-                //    Quantity = item.Quantity,
-                //    PricePerUnit = item.Component.Price,
-                //});
+                var orderDetails = cartItems.Select(item => new OrderDetail()
+                {
+                    OrderId = order.OrderId,
+                    Order = order,
+                    Component = item.Component,
+                    Quantity = item.Quantity,
+                    PricePerUnit = item.Component.Price,
+                }).ToList();
 
-                //result = orderDetailRepository.UpsertOrderDetails(orderDetails);
+                order.OrderDetails = orderDetails;
 
-                //if (result > 0)
-                //{
-                //    return Ok("Zamówienie złożono pomyślnie");
-                //}
+                var orderUpdateResult = orderRepository.UpsertOrder(order);
 
-                //return BadRequest("Nie udało się dodać szczegółów zamówienia :(");
-                return Ok("Zamówienie złożono pomyślnie");
+                if (orderUpdateResult > 0)
+                {
+                    return Ok("Zamówienie złożono pomyślnie");
+                }
+
+                return BadRequest("Nie udało się dodać szczegółów zamówienia :(");
             }
 
             return BadRequest("Nie udało się złożyć zamówienia :(");

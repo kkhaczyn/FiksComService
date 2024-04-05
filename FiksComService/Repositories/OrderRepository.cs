@@ -6,9 +6,9 @@ namespace FiksComService.Repositories
 {
     public class OrderRepository(IDbContextFactory<ApplicationContext> dbContextFactory) : IOrderRepository
     {
-        public int UpsertOrder(Order order, User user)
+        public int UpsertOrder(Order order)
         {
-            if (order == null || user == null)
+            if (order == null)
             {
                 return 0;
             }
@@ -17,15 +17,11 @@ namespace FiksComService.Repositories
             {
                 if (order.OrderId == 0)
                 {
-                    user.Orders.Add(order);
+                    factory.Orders.Add(order);
                 }
                 else
                 {
-                    var foundOrder = user.Orders.Where(o => o.OrderId == order.OrderId).First();
-                    if (foundOrder != null)
-                    {
-                        foundOrder.Status = order.Status;
-                    }
+                    factory.Orders.Update(order);
                 }
 
                 return factory.SaveChanges();
