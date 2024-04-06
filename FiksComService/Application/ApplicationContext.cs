@@ -10,6 +10,7 @@ namespace FiksComService.Application
         public DbSet<Component> Components { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

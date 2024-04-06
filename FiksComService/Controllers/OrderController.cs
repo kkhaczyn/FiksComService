@@ -1,4 +1,5 @@
 ﻿using FiksComService.Application.Infrastructure;
+using FiksComService.Application.InvoiceUtils;
 using FiksComService.Models.Cart;
 using FiksComService.Models.Database;
 using FiksComService.Repositories;
@@ -15,9 +16,14 @@ namespace FiksComService.Controllers
     public class OrderController(
         IOrderRepository orderRepository,
         IComponentRepository componentRepository,
+        IInvoiceRepository invoiceRepository,
+        IWebHostEnvironment webHostEnviroment,
         UserManager<User> userManager
         ) : ControllerBase
     {
+        private InvoiceGenerator invoiceGenerator { get; } = 
+            new InvoiceGenerator(invoiceRepository, webHostEnviroment);
+
         [HttpPost("[action]")]
         public async Task<IActionResult> PlaceOrder()
         {
@@ -52,7 +58,9 @@ namespace FiksComService.Controllers
 
                 CartManager.ClearCart(HttpContext.Session);
 
-                return Ok("Zamówienie złożono pomyślnie");
+                var invoicePath = invoiceGenerator.GenerateInvoice(order);
+
+                return Ok($"Zamówienie złożono pomyślnie. Link do faktury: {invoicePath}");
             }
 
             return BadRequest("Nie udało się dodać szczegółów zamówienia :(");
