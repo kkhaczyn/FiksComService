@@ -14,11 +14,13 @@ namespace FiksComService.Controllers
         IComponentRepository componentRepository) 
         : ControllerBase
     {
+        [HttpGet("[action]")]
         public IActionResult GetCart()
         {
             return Ok(CartManager.GetItems(HttpContext.Session));
         }
 
+        [HttpPut("[action]/{componentId}")]
         public IActionResult Buy(int componentId)
         {
             CartManager.AddToCart(HttpContext.Session, componentRepository, componentId);
@@ -26,6 +28,7 @@ namespace FiksComService.Controllers
             return Ok("Dodano do koszyka.");
         }
 
+        [HttpDelete("[action]/{componentId}")]
         public IActionResult Remove(int componentId)
         {
             var model = new RemoveViewModel()
