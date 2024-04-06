@@ -85,5 +85,12 @@ namespace FiksComService.Application.Infrastructure
             }
             SessionHelper.SetObjectAsJson(session, cartSessionKey, cart);
         }
+
+        public static void ClearCart(ISession session)
+        {
+            var cart = GetItems(session);
+            cart.Clear();
+            SessionHelper.SetObjectAsJson(session, cartSessionKey, cart);
+        }
     }
 }

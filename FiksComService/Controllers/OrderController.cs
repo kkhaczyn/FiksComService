@@ -28,7 +28,7 @@ namespace FiksComService.Controllers
                 return BadRequest("Liczba elementów w koszyku przekracza liczbę dostępnych komponentów w sklepie");
             }
 
-            var order = await CreateAndAddOrderAsync(cartItems);
+            var order = await CreateAndAddOrderAsync();
 
             if (order == null)
             {
@@ -50,6 +50,8 @@ namespace FiksComService.Controllers
             {
                 UpdateComponentsQuantities(order.OrderDetails);
 
+                CartManager.ClearCart(HttpContext.Session);
+
                 return Ok("Zamówienie złożono pomyślnie");
             }
 
@@ -70,7 +72,7 @@ namespace FiksComService.Controllers
             return true;
         }
 
-        private async Task<Order?> CreateAndAddOrderAsync(List<CartItem> cartItems)
+        private async Task<Order?> CreateAndAddOrderAsync()
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
 
@@ -84,7 +86,7 @@ namespace FiksComService.Controllers
                 UserId = user.Id,
                 User = user,
                 OrderDate = DateTime.UtcNow,
-                TotalPrice = cartItems.Sum(item => item.Value * item.Quantity),
+                TotalPrice = CartManager.GetCartValue(HttpContext.Session),
                 Status = "placed"
             };
 
