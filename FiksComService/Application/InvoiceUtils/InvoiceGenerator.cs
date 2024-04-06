@@ -50,14 +50,21 @@ namespace FiksComService.Application.InvoiceUtils
 
         private string GeneratePdf(InvoiceDocument document)
         {
-            var filePath = Path.Combine(webHostEnviroment.WebRootPath, InvoicesFolderName);
             var guid = Guid.NewGuid().ToString();
-            var uniqueDocumentName = guid + "_Invoice.pdf";
-            var documentFilePath = Path.Combine(filePath, uniqueDocumentName);
+            var documentFilePath = GetDocumentPath(guid, webHostEnviroment.WebRootPath);
 
             document.GeneratePdf(documentFilePath);
 
             return guid;
+        }
+
+        public static string GetDocumentPath(string guid, string webRootPath)
+        {
+            var filePath = Path.Combine(webRootPath, InvoicesFolderName);
+            var uniqueDocumentName = guid + "_Invoice.pdf";
+            var documentFilePath = Path.Combine(filePath, uniqueDocumentName);
+
+            return documentFilePath;
         }
     }
 }
