@@ -23,10 +23,10 @@ namespace FiksComService.Controllers
         {
             var cartItems = CartManager.GetItems(HttpContext.Session);
 
-            // TODO: check if we have enough items available in shop
-            //      we can check available number of items when we add sth to cart
-            //      but we also need to do this here (user could've hold items in cart
-            //      for the long time
+            if (!CheckIfItemsAreAvailable(cartItems))
+            {
+                return BadRequest("Liczba elementów w koszyku przekracza liczbę dostępnych komponentów w sklepie");
+            }
 
             var order = await CreateAndAddOrderAsync(cartItems);
 
@@ -54,6 +54,20 @@ namespace FiksComService.Controllers
             }
 
             return BadRequest("Nie udało się dodać szczegółów zamówienia :(");
+        }
+
+        private bool CheckIfItemsAreAvailable(List<CartItem> cartItems)
+        {
+            foreach (var cartItem in cartItems)
+            {
+                var component = cartItem.Component;
+                if (component.QuantityAvailable - cartItem.Quantity < 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private async Task<Order?> CreateAndAddOrderAsync(List<CartItem> cartItems)
