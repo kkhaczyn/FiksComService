@@ -30,5 +30,15 @@ namespace FiksComService.Repositories
                 return factory.SaveChanges();
             }
         }
+
+        public Invoice FindByGuid(string guid)
+        {
+            using (var factory = dbContextFactory.CreateDbContext())
+            {
+                var invoice = factory.Invoices.Single(invoice => invoice.DocumentGuid == guid);
+
+                return invoice;
+            }
+        }
     }
 }

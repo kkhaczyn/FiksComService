@@ -27,5 +27,14 @@ namespace FiksComService.Repositories
                 return factory.SaveChanges();
             }
         }
+        public Order? FindById(int id)
+        {
+            using (var factory = dbContextFactory.CreateDbContext())
+            {
+                var order = factory.Orders.Find(id);
+
+                return order;
+            }
+        }
     }
 }
