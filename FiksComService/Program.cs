@@ -22,7 +22,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 }).AddEntityFrameworkStores<ApplicationContext>();
 
 builder.Services.AddControllers();
-builder.Services.AddDbContextFactory<ApplicationContext>(options 
+builder.Services.AddDbContextFactory<ApplicationContext>(options
     => options.UseNpgsql(builder.Configuration.GetConnectionString("CSFiksCom")));
 builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
@@ -34,9 +34,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("default", policy =>
     {
-        policy.WithOrigins("http://localhost:5046")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
