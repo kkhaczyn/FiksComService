@@ -3,6 +3,7 @@ using FiksComService.Models.Database;
 using FiksComService.Repositories;
 using log4net.Config;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ builder.Services.AddDbContextFactory<ApplicationContext>(options
 builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddSingleton<IOrderDetailRepository, OrderDetailRepository>();
+builder.Services.AddSingleton<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 var app = builder.Build();
@@ -43,5 +45,7 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().Create
     var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationContext>();
     context.Database.Migrate();
 }
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 app.Run();

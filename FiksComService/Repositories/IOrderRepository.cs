@@ -5,5 +5,6 @@ namespace FiksComService.Repositories
     public interface IOrderRepository
     {
         int UpsertOrder(Order order);
+        Order? FindById(int id);
     }
 }

@@ -1,39 +1,43 @@
 ﻿using FiksComService.Application;
 using FiksComService.Models.Database;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 namespace FiksComService.Repositories
 {
-    public class OrderRepository(IDbContextFactory<ApplicationContext> dbContextFactory) : IOrderRepository
+    public class InvoiceRepository(
+        IDbContextFactory<ApplicationContext> dbContextFactory)
+        : IInvoiceRepository
     {
-        public int UpsertOrder(Order order)
+        public int UpsertInvoice(Invoice invoice)
         {
-            if (order == null)
+            if (invoice == null)
             {
                 return 0;
             }
 
             using (var factory = dbContextFactory.CreateDbContext())
             {
-                if (order.OrderId == 0)
+                if (invoice.InvoiceId == 0)
                 {
-                    factory.Orders.Add(order);
+                    factory.Invoices.Add(invoice);
                 }
                 else
                 {
-                    factory.Orders.Update(order);
+                    factory.Invoices.Update(invoice);
                 }
 
                 return factory.SaveChanges();
             }
         }
-        public Order? FindById(int id)
+
+        public Invoice FindByGuid(string guid)
         {
             using (var factory = dbContextFactory.CreateDbContext())
             {
-                var order = factory.Orders.Find(id);
+                var invoice = factory.Invoices.Single(invoice => invoice.DocumentGuid == guid);
 
-                return order;
+                return invoice;
             }
         }
     }
