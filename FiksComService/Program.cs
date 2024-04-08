@@ -22,7 +22,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 }).AddEntityFrameworkStores<ApplicationContext>();
 
 builder.Services.AddControllers();
-builder.Services.AddDbContextFactory<ApplicationContext>(options 
+builder.Services.AddDbContextFactory<ApplicationContext>(options
     => options.UseNpgsql(builder.Configuration.GetConnectionString("CSFiksCom")));
 builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
@@ -30,6 +30,16 @@ builder.Services.AddSingleton<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddSingleton<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("default", policy =>
+    {
+        policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,6 +49,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseCors("default");
 
 using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
 {
