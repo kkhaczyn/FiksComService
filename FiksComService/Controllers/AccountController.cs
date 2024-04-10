@@ -90,11 +90,21 @@ namespace FiksComService.Controllers
                 {
                     if (await userManager.IsInRoleAsync(appUser, "Client"))
                     {
-                        return Ok("Zalogowano siê jako klient");
+                        return Ok(new 
+                        { 
+                            message = "Zalogowano siê jako klient.",
+                            userName = appUser.UserName, 
+                            cookie = HttpContext.Response.Headers.SetCookie 
+                        });
                     }
                     else if (await userManager.IsInRoleAsync(appUser, "Administrator"))
                     {
-                        return Ok("Zalogowano siê jako administrator.");
+                        return Ok(new 
+                        { 
+                            message = "Zalogowano siê jako administrator.",
+                            userName = appUser.UserName,
+                            cookie = HttpContext.Response.Headers.SetCookie 
+                        });
                     }
                 }
                 else
