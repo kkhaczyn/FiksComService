@@ -183,10 +183,20 @@ namespace FiksComService.Controllers
         {
             var listOfUsers = await userManager
                 .Users
-                .Select(x => new { x.UserName, x.Email, x.PhoneNumber, x.Id})
+                .Select(x => new { x.UserName, x.Email, x.PhoneNumber, x.Id })
                 .ToListAsync();
 
             return Ok(listOfUsers);
+        }
+
+        //http://localhost:5046/api/account/GetLoggedUser
+        [Authorize(Roles = "Administrator, Client")]
+        [HttpGet("/api/Account/GetLoggedUser")]
+        public async Task<IActionResult> GetLoggedUser()
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            return Ok(new { user?.UserName, user?.Email, user?.PhoneNumber, user?.Id });
         }
     }
 }
