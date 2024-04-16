@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace FiksComService.Controllers
 {
@@ -195,8 +196,9 @@ namespace FiksComService.Controllers
         public async Task<IActionResult> GetLoggedUser()
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            return Ok(new { user?.UserName, user?.Email, user?.PhoneNumber, user?.Id });
+            return Ok(new { user?.UserName, user?.Email, user?.PhoneNumber, user?.Id, role });
         }
     }
 }
