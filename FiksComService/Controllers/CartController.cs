@@ -2,11 +2,13 @@
 using FiksComService.Models.Cart;
 using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace FiksComService.Controllers
 {
+    //[EnableCors("default")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Client")]

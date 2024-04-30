@@ -2,12 +2,14 @@
 using FiksComService.Models.Database;
 using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Buffers;
 
 namespace FiksComService.Controllers
 {
+    //[EnableCors("default")]
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Client")]
