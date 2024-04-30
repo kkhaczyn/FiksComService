@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace FiksComService.Controllers
 {
-    //[EnableCors("default")]
+    [EnableCors("default")]
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Client")]
