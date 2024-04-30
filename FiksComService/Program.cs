@@ -34,9 +34,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("default", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000")
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
@@ -46,10 +47,10 @@ var app = builder.Build();
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
+app.UseCors("default");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseCors("default");
 
 using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
 {

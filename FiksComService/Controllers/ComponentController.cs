@@ -2,10 +2,12 @@
 using FiksComService.Models.Requests;
 using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FiksComService.Controllers
 {
+    [EnableCors("default")]
     [Route("api/[controller]")]
     [ApiController]
     public class ComponentController(

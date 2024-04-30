@@ -1,6 +1,7 @@
 using FiksComService.Models.Database;
 using FiksComService.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace FiksComService.Controllers
 {
+    [EnableCors("default")]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController(
