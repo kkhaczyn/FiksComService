@@ -14,10 +14,13 @@ namespace FiksComService.Repositories
             }
         }
 
-        public IEnumerable<Component> GetComponentsByType(string componentType)
+        public IEnumerable<Component> GetComponentsByType(string? componentType)
         {
             using (var factory = dbContextFactory.CreateDbContext())
             {
+                if (string.IsNullOrWhiteSpace(componentType))
+                    return factory.Components.ToList();
+
                 return factory.Components.Where(x => x.ComponentType.ToUpper() == componentType.ToUpper()).ToList();
             }
         }
