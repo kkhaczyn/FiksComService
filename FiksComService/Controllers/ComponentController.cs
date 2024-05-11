@@ -45,27 +45,21 @@ namespace FiksComService.Controllers
             return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
         }
 
-        //http://localhost:5046/api/component/getcomponentbytype/Procesor
+        //http://localhost:5046/api/component/getcomponentsbytype/Procesor
         [Authorize(Roles = "Administrator, Client")]
-        [HttpGet("[action]/{componentType}")]
-        public IActionResult GetComponentsByType(string componentType)
+        [HttpGet("[action]/{componentType?}")]
+        public IActionResult GetComponentsByType(string? componentType)
         {
-            if (!string.IsNullOrWhiteSpace(componentType))
+            IEnumerable<Component> components = componentRepository.GetComponentsByType(componentType);
+
+            if (components?.Any() ?? false)
             {
-                IEnumerable<Component> components = componentRepository.GetComponentsByType(componentType);
-
-                if (components?.Any() ?? false)
-                {
-                    return Ok(componentRepository.GetComponentsByType(componentType));
-                }
-                else
-                {
-                    return BadRequest("Brak elementów.");
-                }
-
+                return Ok(components);
             }
-
-            return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
+            else
+            {
+                return BadRequest("Brak elementów.");
+            }
         }
 
         //http://localhost:5046/api/component/getcomponentbyid/1
@@ -81,6 +75,14 @@ namespace FiksComService.Controllers
             }
 
             return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
+        }
+
+        //http://localhost:5046/api/component/gettypes
+        [Authorize(Roles = "Administrator, Client")]
+        [HttpGet("[action]")]
+        public IActionResult GetTypes()
+        {
+            return Ok(new { PROCESSOR = "Procesor", RAM = "RAM", GRAPHICSCARD = "Karta graficzna" });
         }
     }
 }
