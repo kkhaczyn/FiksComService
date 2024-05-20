@@ -36,5 +36,15 @@ namespace FiksComService.Repositories
                 return order;
             }
         }
+
+        public List<Order> FindByUserId(int userId)
+        {
+            using (var factory = dbContextFactory.CreateDbContext())
+            {
+                var orders = factory.Orders.Where(order => order.UserId == userId).ToList();
+
+                return orders;
+            }
+        }
     }
 }

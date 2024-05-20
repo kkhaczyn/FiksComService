@@ -6,5 +6,6 @@ namespace FiksComService.Repositories
     {
         int UpsertOrder(Order order);
         Order? FindById(int id);
+        List<Order> FindByUserId(int userId);
     }
 }

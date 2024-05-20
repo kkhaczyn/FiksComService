@@ -2,6 +2,7 @@
 using FiksComService.Application.InvoiceUtils;
 using FiksComService.Models.Cart;
 using FiksComService.Models.Database;
+using FiksComService.Models.Responses;
 using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -17,6 +18,7 @@ namespace FiksComService.Controllers
     [Authorize(Roles = "Client")]
     public class OrderController(
         IOrderRepository orderRepository,
+        IOrderDetailRepository orderDetailRepository,
         IComponentRepository componentRepository,
         IInvoiceRepository invoiceRepository,
         IWebHostEnvironment webHostEnviroment,
@@ -47,6 +49,7 @@ namespace FiksComService.Controllers
             {
                 OrderId = order.OrderId,
                 Order = order,
+                ComponentId = item.Component.ComponentId,
                 Component = item.Component,
                 Quantity = item.Quantity,
                 PricePerUnit = item.Component.Price,
@@ -120,6 +123,49 @@ namespace FiksComService.Controllers
                 component.QuantityAvailable -= orderDetail.Quantity;
                 componentRepository.UpsertComponent(component);
             }
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            return GetUserOrders(user);
+        }
+
+        [HttpGet("[action]/{userId}")]
+        public async Task<IActionResult> GetUserOrders(int userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            return GetUserOrders(user);
+        }
+
+        private IActionResult GetUserOrders(User? user)
+        {
+            if (user == null)
+            {
+                return BadRequest("Nie znaleziono użytkownika o podanym ID");
+            }
+
+            var orders = orderRepository.FindByUserId(user.Id);
+
+            return Ok(orders);
+        }
+
+        [HttpGet("[action]/{orderId}")]
+        public async Task<IActionResult> GetOrderDetails(int orderId)
+        {
+            var invoice = invoiceRepository.FindByOrderId(orderId);
+            var orderDetails = orderDetailRepository.GetOrderDetailsByOrderId(orderId);
+
+            var orderDetailsResponse = new OrderDetailsResponse
+            {
+                OrderDetails = orderDetails,
+                InvoiceGuid = invoice.DocumentGuid
+            };
+
+            return Ok(orderDetailsResponse);
         }
     }
 }

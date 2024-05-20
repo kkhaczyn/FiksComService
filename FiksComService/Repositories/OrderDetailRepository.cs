@@ -7,6 +7,18 @@ namespace FiksComService.Repositories
     public class OrderDetailRepository(IDbContextFactory<ApplicationContext> dbContextFactory) 
         : IOrderDetailRepository
     {
+        public List<OrderDetail> GetOrderDetailsByOrderId(int orderId)
+        {
+            using (var factory = dbContextFactory.CreateDbContext())
+            {
+                var orderDetails = factory.OrderDetails
+                    .Where(orderDetail => orderDetail.OrderId ==  orderId)
+                    .ToList();
+
+                return orderDetails;
+            }
+        }
+
         public int UpsertOrderDetails(IEnumerable<OrderDetail> orderDetails)
         {
             using (var factory = dbContextFactory.CreateDbContext())

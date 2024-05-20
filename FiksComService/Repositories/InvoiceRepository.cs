@@ -40,5 +40,15 @@ namespace FiksComService.Repositories
                 return invoice;
             }
         }
+
+        public Invoice FindByOrderId(int orderId)
+        {
+            using (var factory = dbContextFactory.CreateDbContext())
+            {
+                var invoice = factory.Invoices.Single(invoice => invoice.OrderId == orderId);
+
+                return invoice;
+            }
+        }
     }
 }
