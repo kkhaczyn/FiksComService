@@ -138,7 +138,6 @@ namespace FiksComService.Controllers
         [HttpGet("[action]/{userId}")]
         public async Task<IActionResult> GetUserOrders(int userId)
         {
-            // TODO: access only for admin
             var user = await userManager.FindByIdAsync(userId.ToString());
 
             return GetUserOrders(user);
@@ -160,8 +159,23 @@ namespace FiksComService.Controllers
         [HttpGet("[action]/{orderId}")]
         public async Task<IActionResult> GetOrderDetails(int orderId)
         {
-            // TODO: check if client has access to this order
-            //      if Admin -> always OK
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            if (user == null)
+            {
+                return BadRequest("Błąd użytkownika");
+            }
+
+            if (HttpContext.User.IsInRole("Client"))
+            {
+                var order = orderRepository.FindById(orderId);
+
+                if (order != null && order.UserId != user.Id)
+                {
+                    return BadRequest("Użytkownik nie posiada uprawnień do tego zasobu");
+                }
+            }
+
             var invoice = invoiceRepository.FindByOrderId(orderId);
             var orderDetails = orderDetailRepository
                 .GetOrderDetailsByOrderId(orderId)
