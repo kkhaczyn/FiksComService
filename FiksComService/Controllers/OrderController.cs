@@ -15,7 +15,6 @@ namespace FiksComService.Controllers
     [EnableCors("default")]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Client")]
     public class OrderController(
         IOrderRepository orderRepository,
         IOrderDetailRepository orderDetailRepository,
@@ -28,6 +27,7 @@ namespace FiksComService.Controllers
         private InvoiceGenerator invoiceGenerator { get; } = 
             new InvoiceGenerator(invoiceRepository, webHostEnviroment);
 
+        [Authorize(Roles = "Client")]
         [HttpPost("[action]")]
         public async Task<IActionResult> PlaceOrder()
         {
@@ -125,6 +125,7 @@ namespace FiksComService.Controllers
             }
         }
 
+        [Authorize(Roles = "Client")]
         [HttpGet("[action]")]
         public async Task<IActionResult> GetMyOrders()
         {
@@ -133,9 +134,11 @@ namespace FiksComService.Controllers
             return GetUserOrders(user);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpGet("[action]/{userId}")]
         public async Task<IActionResult> GetUserOrders(int userId)
         {
+            // TODO: access only for admin
             var user = await userManager.FindByIdAsync(userId.ToString());
 
             return GetUserOrders(user);
@@ -153,11 +156,25 @@ namespace FiksComService.Controllers
             return Ok(orders);
         }
 
+        [Authorize(Roles = "Client, Administrator")]
         [HttpGet("[action]/{orderId}")]
         public async Task<IActionResult> GetOrderDetails(int orderId)
         {
+            // TODO: check if client has access to this order
+            //      if Admin -> always OK
             var invoice = invoiceRepository.FindByOrderId(orderId);
-            var orderDetails = orderDetailRepository.GetOrderDetailsByOrderId(orderId);
+            var orderDetails = orderDetailRepository
+                .GetOrderDetailsByOrderId(orderId)
+                .Select(orderDetail => {
+                    var component = componentRepository.GetComponentById(orderDetail.ComponentId);
+
+                    if (component != null)
+                    {
+                        orderDetail.Component = component;
+                    }
+                    
+                    return orderDetail;
+                }).ToList();
 
             var orderDetailsResponse = new OrderDetailsResponse
             {
