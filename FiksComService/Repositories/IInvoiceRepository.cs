@@ -6,5 +6,6 @@ namespace FiksComService.Repositories
     {
         int UpsertInvoice(Invoice invoice);
         Invoice FindByGuid(string guid);
+        Invoice FindByOrderId(int orderId);
     }
 }

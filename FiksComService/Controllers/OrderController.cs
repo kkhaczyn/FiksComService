@@ -2,6 +2,7 @@
 using FiksComService.Application.InvoiceUtils;
 using FiksComService.Models.Cart;
 using FiksComService.Models.Database;
+using FiksComService.Models.Responses;
 using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -14,9 +15,9 @@ namespace FiksComService.Controllers
     [EnableCors("default")]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Client")]
     public class OrderController(
         IOrderRepository orderRepository,
+        IOrderDetailRepository orderDetailRepository,
         IComponentRepository componentRepository,
         IInvoiceRepository invoiceRepository,
         IWebHostEnvironment webHostEnviroment,
@@ -26,6 +27,7 @@ namespace FiksComService.Controllers
         private InvoiceGenerator invoiceGenerator { get; } = 
             new InvoiceGenerator(invoiceRepository, webHostEnviroment);
 
+        [Authorize(Roles = "Client")]
         [HttpPost("[action]")]
         public async Task<IActionResult> PlaceOrder()
         {
@@ -47,6 +49,7 @@ namespace FiksComService.Controllers
             {
                 OrderId = order.OrderId,
                 Order = order,
+                ComponentId = item.Component.ComponentId,
                 Component = item.Component,
                 Quantity = item.Quantity,
                 PricePerUnit = item.Component.Price,
@@ -120,6 +123,80 @@ namespace FiksComService.Controllers
                 component.QuantityAvailable -= orderDetail.Quantity;
                 componentRepository.UpsertComponent(component);
             }
+        }
+
+        [Authorize(Roles = "Client")]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            return GetUserOrders(user);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("[action]/{userId}")]
+        public async Task<IActionResult> GetUserOrders(int userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            return GetUserOrders(user);
+        }
+
+        private IActionResult GetUserOrders(User? user)
+        {
+            if (user == null)
+            {
+                return BadRequest("Nie znaleziono użytkownika o podanym ID");
+            }
+
+            var orders = orderRepository.FindByUserId(user.Id);
+
+            return Ok(orders);
+        }
+
+        [Authorize(Roles = "Client, Administrator")]
+        [HttpGet("[action]/{orderId}")]
+        public async Task<IActionResult> GetOrderDetails(int orderId)
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
+            if (user == null)
+            {
+                return BadRequest("Błąd użytkownika");
+            }
+
+            if (HttpContext.User.IsInRole("Client"))
+            {
+                var order = orderRepository.FindById(orderId);
+
+                if (order != null && order.UserId != user.Id)
+                {
+                    return BadRequest("Użytkownik nie posiada uprawnień do tego zasobu");
+                }
+            }
+
+            var invoice = invoiceRepository.FindByOrderId(orderId);
+            var orderDetails = orderDetailRepository
+                .GetOrderDetailsByOrderId(orderId)
+                .Select(orderDetail => {
+                    var component = componentRepository.GetComponentById(orderDetail.ComponentId);
+
+                    if (component != null)
+                    {
+                        orderDetail.Component = component;
+                    }
+                    
+                    return orderDetail;
+                }).ToList();
+
+            var orderDetailsResponse = new OrderDetailsResponse
+            {
+                OrderDetails = orderDetails,
+                InvoiceGuid = invoice.DocumentGuid
+            };
+
+            return Ok(orderDetailsResponse);
         }
     }
 }
