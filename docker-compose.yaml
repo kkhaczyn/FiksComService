@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  # .NET app container
+  app:
+    image: fikscomservice-app:latest
+    container_name: fikscom-app
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - 8080:8080
+    restart: always
+    volumes:
+      - ./wwwroot:/FiksComService/wwwroot
+    # command: dotnet --environment Production FiksComService.dll
+
+  # Database container
+  db:
+    image: postgres:15
+    restart: always
+    container_name: postgres-fikscom
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: FiksComDB
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  # Frontend container
+  #  frontend:
+  #  image: fikscomservice-front:latest
+  #  container_name: fikscom-front
+  #  ports:
+  #    - 3000:3000
+
+volumes:
+  pg_data:
+    external: true
