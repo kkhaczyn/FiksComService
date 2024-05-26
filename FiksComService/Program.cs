@@ -28,6 +28,7 @@ builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddSingleton<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddSingleton<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddSingleton<IComponentTypeRepository, ComponentTypeRepository>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddCors(options =>

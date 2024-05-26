@@ -35,7 +35,7 @@ namespace FiksComServiceTests.Controllers
             {
                 Component = new()
                 {
-                    ComponentType = "Procesor",
+                    ComponentType = new ComponentType() { Code = "RAM", Name = "Pamięć RAM"},
                     Manufacturer = "xxx",
                     Model = "xxx",
                     Price = 1.34M,
@@ -62,7 +62,7 @@ namespace FiksComServiceTests.Controllers
             [
                 new()
                 {
-                    ComponentType = "Procesor",
+                    ComponentType = new ComponentType() { Code = "RAM", Name = "Pamięć RAM"},
                     Manufacturer = "xxx",
                     Model = "xxx",
                     Price = 1.34M,
@@ -71,7 +71,7 @@ namespace FiksComServiceTests.Controllers
             ]);
 
             // ACT
-            IActionResult result = componentController.GetComponentsByType("Procesor");
+            IActionResult result = componentController.GetComponentsByType("ram");
             var okResult = result as OkObjectResult;
 
             // ASSERT
@@ -88,7 +88,7 @@ namespace FiksComServiceTests.Controllers
                 new Component()
                 {
                     ComponentId = 1,
-                    ComponentType = "Procesor",
+                    ComponentType = new ComponentType() { Code = "RAM", Name = "Pamięć RAM" },
                     Manufacturer = "xxx",
                     Model = "xxx",
                     Price = 1.34M,

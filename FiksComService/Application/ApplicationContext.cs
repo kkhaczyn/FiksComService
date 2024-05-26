@@ -11,6 +11,7 @@ namespace FiksComService.Application
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<ComponentType> ComponentTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -41,7 +42,12 @@ namespace FiksComService.Application
                     UserId = 1,
                     RoleId = 2
                 });
-            
+
+            builder.Entity<ComponentType>().HasData(
+                new ComponentType() { Code = "RAM", Name = "Pamięć RAM" },
+                new ComponentType() { Code = "GPU", Name = "Karta graficzna" },
+                new ComponentType() { Code = "PROCESSOR", Name = "Procesor" });
+
             base.OnModelCreating(builder);
         }
     }
