@@ -186,7 +186,8 @@ namespace FiksComService.Controllers
         {
             var listOfUsers = await userManager
                 .Users
-                .Select(x => new { x.UserName, x.Email, x.PhoneNumber, x.Id })
+                //.Include(x => x.Orders)
+                .Select(x => new { x.UserName, x.Email, x.PhoneNumber, x.Id, x.Orders })
                 .ToListAsync();
 
             return Ok(listOfUsers);
