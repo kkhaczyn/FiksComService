@@ -11,7 +11,8 @@ namespace FiksComService.Repositories
         {
             using (var factory = dbContextFactory.CreateDbContext())
             {
-                var orderDetails = factory.OrderDetails
+                var orderDetails = factory.OrderDetails.Include(x => x.Component)
+                    .Include(y=>y.Component.ComponentType)
                     .Where(orderDetail => orderDetail.OrderId ==  orderId)
                     .ToList();
 
