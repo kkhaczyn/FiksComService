@@ -21,9 +21,13 @@ builder.Services.AddIdentity<User, Role>(options =>
     options.Password.RequireUppercase = true;
 }).AddEntityFrameworkStores<ApplicationContext>();
 
+var connectionString = builder.Environment.IsProduction()
+    ? builder.Configuration.GetConnectionString("CSFiksComDocker")
+    : builder.Configuration.GetConnectionString("CSFiksCom");
+
 builder.Services.AddControllers();
 builder.Services.AddDbContextFactory<ApplicationContext>(options
-    => options.UseNpgsql(builder.Configuration.GetConnectionString("CSFiksCom")));
+    => options.UseNpgsql(connectionString));
 builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddSingleton<IOrderDetailRepository, OrderDetailRepository>();
