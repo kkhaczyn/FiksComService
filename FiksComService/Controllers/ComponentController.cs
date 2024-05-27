@@ -76,13 +76,5 @@ namespace FiksComService.Controllers
 
             return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
         }
-
-        //http://localhost:5046/api/component/gettypes
-        [Authorize(Roles = "Administrator, Client")]
-        [HttpGet("[action]")]
-        public IActionResult GetTypes()
-        {
-            return Ok(new { PROCESSOR = "Procesor", RAM = "RAM", GRAPHICSCARD = "Karta graficzna" });
-        }
     }
 }
