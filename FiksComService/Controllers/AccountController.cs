@@ -1,11 +1,15 @@
 using FiksComService.Models.Database;
 using FiksComService.Models.Requests;
+using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace FiksComService.Controllers
 {
@@ -16,7 +20,8 @@ namespace FiksComService.Controllers
     UserManager<User> userManager,
     SignInManager<User> signInManager,
     RoleManager<Role> roleManager,
-    ILogger<AccountController> logger)
+    ILogger<AccountController> logger,
+    IOrderDetailRepository orderDetailRepository)
     : ControllerBase
     {
         [HttpPost("/api/Account/SignUp")]
@@ -184,12 +189,41 @@ namespace FiksComService.Controllers
         [HttpGet("/api/Account/GetUsers")]
         public async Task<IActionResult> GetUsers()
         {
-            var listOfUsers = await userManager
-                .Users
-                .Select(x => new { x.UserName, x.Email, x.PhoneNumber, x.Id })
+            var listOfUsers = await userManager.Users
+                .Include(x => x.Orders)
                 .ToListAsync();
 
-            return Ok(listOfUsers);
+            foreach (var user in listOfUsers)
+            {
+                foreach (var order in user.Orders)
+                {
+                    order.OrderDetails = orderDetailRepository.GetOrderDetailsByOrderId(order.OrderId);
+                }
+            }
+
+            var usersWithOrdersAndDetails = listOfUsers.Select(user => new
+            {
+                user.UserName,
+                user.Email,
+                user.PhoneNumber,
+                user.Id,
+                Orders = user.Orders.Select(order => new
+                { 
+                    order.OrderId,
+                    order.OrderDate,
+                    order.Status,
+                    order.TotalPrice,
+                    OrdersDetails = order.OrderDetails.Select(orderDetail => new 
+                    {
+                        orderDetail.OrderDetailId,
+                        orderDetail.Component,
+                        orderDetail.Quantity,
+                        orderDetail.PricePerUnit
+                    }).ToList()
+                }).ToList()
+            }).ToList();
+
+            return Ok(usersWithOrdersAndDetails);
         }
 
         //http://localhost:5046/api/account/GetLoggedUser

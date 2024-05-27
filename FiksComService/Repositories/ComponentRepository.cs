@@ -10,7 +10,9 @@ namespace FiksComService.Repositories
         {
             using (var factory = dbContextFactory.CreateDbContext())
             {
-                return factory.Components.FirstOrDefault(x => x.ComponentId == componentId);
+                return factory.Components
+                    .Include(c => c.ComponentType)
+                    .FirstOrDefault(x => x.ComponentId == componentId);
             }
         }
 
@@ -19,9 +21,18 @@ namespace FiksComService.Repositories
             using (var factory = dbContextFactory.CreateDbContext())
             {
                 if (string.IsNullOrWhiteSpace(componentType))
-                    return factory.Components.ToList();
+                {
+                    return factory.Components
+                        .Include(c => c.ComponentType)
+                        .ToList();
+                }
 
-                return factory.Components.Where(x => x.ComponentType.ToUpper() == componentType.ToUpper()).ToList();
+
+                return factory.Components
+                    .Include(c => c.ComponentType)
+                    .Where(x => x.ComponentType.Name.ToUpper() == componentType.ToUpper()
+                    || x.ComponentType.Code.ToUpper() == componentType.ToUpper())
+                    .ToList();
             }
         }
 
@@ -34,6 +45,7 @@ namespace FiksComService.Repositories
             {
                 if (component.ComponentId == 0)
                 {
+                    factory.ComponentTypes.Attach(component.ComponentType);
                     factory.Components.Add(component);
                 }
                 else
