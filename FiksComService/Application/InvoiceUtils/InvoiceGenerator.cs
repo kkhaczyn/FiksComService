@@ -25,7 +25,8 @@ namespace FiksComService.Application.InvoiceUtils
             }
 
             // Generate PDF file and save it
-            var document = new InvoiceDocument(invoice, order.OrderDetails.ToList());
+            var document = new InvoiceDocument(
+                invoice, order.OrderDetails.ToList(), order.User.Email);
             var documentGuid = GeneratePdf(document);
 
             // Save name of file in invoice record
