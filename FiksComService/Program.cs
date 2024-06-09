@@ -21,9 +21,13 @@ builder.Services.AddIdentity<User, Role>(options =>
     options.Password.RequireUppercase = true;
 }).AddEntityFrameworkStores<ApplicationContext>();
 
+var connectionString = builder.Environment.IsProduction()
+    ? builder.Configuration.GetConnectionString("CSFiksComDocker")
+    : builder.Configuration.GetConnectionString("CSFiksCom");
+
 builder.Services.AddControllers();
 builder.Services.AddDbContextFactory<ApplicationContext>(options
-    => options.UseNpgsql(builder.Configuration.GetConnectionString("CSFiksCom")));
+    => options.UseNpgsql(connectionString));
 builder.Services.AddSingleton<IComponentRepository, ComponentRepository>();
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddSingleton<IOrderDetailRepository, OrderDetailRepository>();
@@ -35,7 +39,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("default", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost")
+        .WithOrigins("http://51.103.240.161")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();

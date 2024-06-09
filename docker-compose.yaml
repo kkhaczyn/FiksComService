@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  # .NET app container
+  app:
+    image: fikscomservice-app:latest
+    container_name: fikscom-app
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - 5000:5000
+    restart: always
+    volumes:
+      - ./wwwroot:/FiksComService/wwwroot
+
+  # Database container
+  db:
+    image: postgres:15
+    restart: always
+    container_name: postgres-fikscom
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: FiksComDB
+    ports:
+      - 5432:5432
+    volumes:
+      # - pg_data:/var/lib/postgresql/data # Uncomment this line and comment out below line if running in Windows
+      - ./pgdata:/var/lib/postgresql/data # This line is preffered for Linux hosts
+
+  # Frontend container
+  frontend:
+    image: fikscomservice-front:latest
+    container_name: fikscom-front
+    environment:
+      WDS_SOCKET_PORT: "0"
+      REACT_APP_API_BASE_URL: http://localhost:5000/api
+    ports:
+      - 80:3000
+
+# Enable below section for windows hosts
+volumes:
+  # Store postgres database data
+  pg_data:
+    # Make sure volume exists using "docker volume create --name=pg_data"
+    external: true
