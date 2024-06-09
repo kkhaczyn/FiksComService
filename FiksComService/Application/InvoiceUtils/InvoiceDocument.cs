@@ -9,11 +9,14 @@ namespace FiksComService.Application.InvoiceUtils
     {
         public Invoice Model { get; }
         private List<OrderDetail> OrderDetails;
+        private string? UserInformation;
 
-        public InvoiceDocument(Invoice invoice, List<OrderDetail> orderDetails)
+        public InvoiceDocument(
+            Invoice invoice, List<OrderDetail> orderDetails, string? userInformation)
         {
             Model = invoice;
             OrderDetails = orderDetails;
+            UserInformation = userInformation;
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -47,18 +50,24 @@ namespace FiksComService.Application.InvoiceUtils
             {
                 row.RelativeItem().Column(column =>
                 {
-                    column.Item().Text($"Invoice #{Model.InvoiceId}").Style(titleStyle);
+                    column.Item().Text($"Faktura #{Model.InvoiceId}").Style(titleStyle);
 
                     column.Item().Text(text =>
                     {
-                        text.Span("Issue date: ").SemiBold();
+                        text.Span("Data wystawienia: ").SemiBold();
                         text.Span($"{Model.IssueDate:d}");
                     });
 
                     column.Item().Text(text =>
                     {
-                        text.Span("Due date: ").SemiBold();
+                        text.Span("Termin zapłaty: ").SemiBold();
                         text.Span($"{Model.DueDate:d}");
+                    });
+
+                    column.Item().Text(text =>
+                    {
+                        text.Span("Dane osobowe: ").SemiBold();
+                        text.Span($"{UserInformation}");
                     });
                 });
 
@@ -113,7 +122,7 @@ namespace FiksComService.Application.InvoiceUtils
                     table.Cell().Element(CellStyle).Text(item.Component.Model);
                     table.Cell().Element(CellStyle).AlignRight().Text(item.Component.Price.ToString());
                     table.Cell().Element(CellStyle).AlignRight().Text(item.Quantity.ToString());
-                    table.Cell().Element(CellStyle).AlignRight().Text($"{item.Quantity * item.PricePerUnit}$");
+                    table.Cell().Element(CellStyle).AlignRight().Text($"{item.Quantity * item.PricePerUnit} zł");
 
                     static IContainer CellStyle(IContainer container)
                     {
