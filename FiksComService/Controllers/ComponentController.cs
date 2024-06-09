@@ -76,5 +76,40 @@ namespace FiksComService.Controllers
 
             return BadRequest("Coś poszło nie tak... Spróbuj ponownie później.");
         }
+
+        [Authorize(Roles = "Administrator, Client")]
+        [HttpGet("[action]/{componentId:int}")]
+        public IActionResult GetComponentImage(int componentId)
+        {
+            Component? component = componentRepository.GetComponentById(componentId);
+
+            if (component == null)
+            {
+                return BadRequest("Nie znaleziono komponentu o podanym ID");
+            }
+
+            var filePath = Path.Combine(webHostEnviroment.WebRootPath, "ComponentsImages");
+            var uniquePosterName = component.Image;
+
+            if (uniquePosterName == null)
+            {
+                return BadRequest("Nie znaleziono ścieżki do pliku graficznego");
+            }
+
+            logger.Log(LogLevel.Information, uniquePosterName);
+
+            var picFilePath = Path.Combine(filePath, uniquePosterName);
+
+            if (!System.IO.File.Exists(picFilePath))
+            {
+                return BadRequest("Plik graficzny pod podaną ścieżką nie istnieje");
+            }
+
+            logger.Log(LogLevel.Information, picFilePath);
+
+            var imageBytes = System.IO.File.ReadAllBytes(picFilePath);
+
+            return File(imageBytes, "image/jpg", uniquePosterName);
+        }
     }
 }
