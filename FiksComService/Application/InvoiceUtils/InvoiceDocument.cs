@@ -66,7 +66,13 @@ namespace FiksComService.Application.InvoiceUtils
 
                     column.Item().Text(text =>
                     {
-                        text.Span("Dane osobowe: ").SemiBold();
+                        text.Span("Sprzedawca: ").SemiBold();
+                        text.Span("FiksComService");
+                    });
+
+                    column.Item().Text(text =>
+                    {
+                        text.Span("Nabywca: ").SemiBold();
                         text.Span($"{UserInformation}");
                     });
                 });
