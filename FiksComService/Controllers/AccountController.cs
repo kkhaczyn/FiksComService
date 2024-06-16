@@ -6,10 +6,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SkiaSharp;
 using System.Security.Claims;
-using System.Text.Json.Serialization;
-using System.Text.Json;
+using System.Data;
 
 namespace FiksComService.Controllers
 {
@@ -96,6 +94,12 @@ namespace FiksComService.Controllers
 
                 if (appUser != null)
                 {
+                    if (appUser.LockoutEnabled)
+                    {
+                        await signInManager.SignOutAsync();
+                        return StatusCode(StatusCodes.Status403Forbidden);
+                    }
+
                     if (await userManager.IsInRoleAsync(appUser, "Client"))
                     {
                         return Ok(new 
@@ -207,6 +211,7 @@ namespace FiksComService.Controllers
                 user.Email,
                 user.PhoneNumber,
                 user.Id,
+                user.LockoutEnabled,
                 Orders = user.Orders.Select(order => new
                 { 
                     order.OrderId,
@@ -235,6 +240,35 @@ namespace FiksComService.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             return Ok(new { user?.UserName, user?.Email, user?.PhoneNumber, user?.Id, role });
+        }
+
+        //http://localhost:5000/api/account/lockoutuser?id=2
+        [Authorize(Roles = "Administrator")]
+        [HttpPost("/api/Account/LockoutUser")]
+        public async Task<IActionResult> LockoutUser(int id)
+        {
+            var user = await userManager.FindByIdAsync(id.ToString());
+
+            if (user != null)
+            {
+                if (user.LockoutEnabled)
+                {
+                    await userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddMinutes(-1));
+                    await userManager.SetLockoutEnabledAsync(user, false);
+
+                }
+                else
+                {
+                    await userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddDays(10));
+                    await userManager.SetLockoutEnabledAsync(user, true);
+                }
+                //await userManager.SetLockoutEnabledAsync(user, !user.LockoutEnabled);
+                return Ok("Zastosowano zmiany.");
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }
