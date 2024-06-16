@@ -211,6 +211,7 @@ namespace FiksComService.Controllers
                 user.Email,
                 user.PhoneNumber,
                 user.Id,
+                user.LockoutEnabled,
                 Orders = user.Orders.Select(order => new
                 { 
                     order.OrderId,
