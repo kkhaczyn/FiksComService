@@ -2,6 +2,7 @@
 using FiksComService.Application.InvoiceUtils;
 using FiksComService.Models.Cart;
 using FiksComService.Models.Database;
+using FiksComService.Models.Requests;
 using FiksComService.Models.Responses;
 using FiksComService.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -100,7 +101,7 @@ namespace FiksComService.Controllers
                 User = user,
                 OrderDate = DateTime.UtcNow,
                 TotalPrice = CartManager.GetCartValue(HttpContext.Session),
-                Status = "placed"
+                Status = "opłacone"
             };
 
             user.Orders.Add(order);
@@ -197,6 +198,34 @@ namespace FiksComService.Controllers
             };
 
             return Ok(orderDetailsResponse);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ChangeOrderStatus(ChangeOrderStatusRequest changeOrderStatusRequest)
+        {
+            string[] allowedStatuses = ["opłacone", "dostarczone", "anulowane"];
+
+            if (!allowedStatuses.Contains(changeOrderStatusRequest.OrderStatus.ToLower()))
+            {
+                return BadRequest("Niedozwolony status zamówienia");
+            }
+
+            var order = orderRepository.FindById(changeOrderStatusRequest.OrderId);
+
+            if (order == null)
+            {
+                return BadRequest("Nie znaleziono zamówienia o podanym ID");
+            }
+
+            order.Status = changeOrderStatusRequest.OrderStatus;
+
+            if (orderRepository.UpsertOrder(order) <= 0)
+            {
+                return BadRequest("Nie udało się zaktualizować statusu zamówienia");
+            }
+
+            return Ok("Status zamówienia zmieniony pomyślnie");
         }
     }
 }
